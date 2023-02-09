@@ -17,19 +17,20 @@ def normalize(specs):
     return normalized_spec, max_value
 
 
-def train_model(n_batches = 100000,
-                sampling_rate = 16000,
-                batch_size = 32,
-                audio_path = audio_dir,
-                checkpoints_path = checkpoints_path,
-                path_to_weights = 'model_weights.h5',
+def train_model(sampling_rate = 16000,
+                n_batches = 10000,
+                batch_size = 128,
+                audio_path = 'audio/',
+                checkpoints_path = 'checkpoints/',
                 resume_training = False,
-                override_saved_model = True,
-                synth_frequency = 5000,
-                save_frequency = 10000,
+                path_to_weights = 'checkpoints/model_weights.h5',
+                override_saved_model = False,
+                synth_frequency = 200,
+                save_frequency = 200,
                 latent_dim = 100,
-                discriminator_learning_rate = 1e-4,
-                generator_learning_rate = 1e-4):
+                discriminator_learning_rate = 0.00004,
+                generator_learning_rate = 0.00004,
+                discriminator_extra_steps = 5):
 
     n_classes = utils.get_n_classes(audio_path)
     #create the dataset from the class folders in '/audio'
@@ -41,12 +42,12 @@ def train_model(n_batches = 100000,
     log_spec = log_spec/(-clipBelow/2)+1
     specs = tf.reshape(log_spec, (-1, 256, 128, 1))
     specs = np.asarray(specs)
+    #print(specs.shape, specs.dtype)
 
     #build the discriminator
     discriminator = ctifgan.discriminator(n_classes = n_classes)
     #build the generator
-    generator = ctifgan.generator(latent_dim = latent_dim,
-                                                n_classes = n_classes)
+    generator = ctifgan.generator(latent_dim = latent_dim, n_classes = n_classes)
     #set the optimizers
     discriminator_optimizer = Adam(learning_rate = discriminator_learning_rate, beta_1=0.5, beta_2=0.9)
     generator_optimizer = Adam(learning_rate = generator_learning_rate, beta_1=0.5, beta_2=0.9)
@@ -68,7 +69,7 @@ def train_model(n_batches = 100000,
     #save the training parameters used to the checkpoints folder,
     #it makes it easier to retrieve the parameters/hyperparameters afterwards
     utils.write_parameters(n_batches, batch_size, audio_path, checkpoints_path, path_to_weights, max_value,
-                           resume_training, override_saved_model, synth_frequency, save_frequency, latent_dim, use_batch_norm, 
+                           resume_training, override_saved_model, synth_frequency, save_frequency, latent_dim, 
                            discriminator_learning_rate, generator_learning_rate, discriminator_extra_steps, mse_weight)
 
 
@@ -90,7 +91,7 @@ if __name__ == '__main__':
 
     train_model(n_batches = 100000,
                 sampling_rate = 16000,
-                batch_size = 32,
+                batch_size = 16,
                 audio_path = audio_dir,
                 checkpoints_path = checkpoints_path,
                 path_to_weights = 'model_weights.h5',
@@ -99,7 +100,6 @@ if __name__ == '__main__':
                 synth_frequency = 5000,
                 save_frequency = 10000,
                 latent_dim = 100,
-                use_batch_norm = True,
                 discriminator_learning_rate = 1e-4,
                 generator_learning_rate = 1e-4,
                 discriminator_extra_steps = 1)
