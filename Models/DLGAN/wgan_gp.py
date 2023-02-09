@@ -9,12 +9,9 @@ import matplotlib.pyplot as plt
 from ctifgan import *
 import pandas as pd
 losses = []
-
-clip_threshold = 1.0
 n_fft = 254
 hop_length = 64
-win_length = 256
-audio_dim = 16384
+win_length = 254
 
 def mean_square_error(y_true, y_pred):
     diff = y_true - y_pred
@@ -96,7 +93,7 @@ class WGANGP(keras.Model):
                 de_log_spec = tf.math.exp(5*(generated_images-1))
                 de_norm_spec = de_log_spec * max_value
                 generated_audio = tf.reshape(de_norm_spec, (batch_size, 256, 128))
-                generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=254, stride=64, window=254, iterations=50)
+                generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=n_fft, stride=hop_length, window=win_length, iterations=50)
                 generated_audio = generated_audio / (tf.reduce_max(tf.abs(generated_audio)) + 1e-50)
                 generated_audio = generated_audio[:,:audio_dim]
                 generated_audio = tf.reshape(generated_audio, (batch_size, audio_dim, 1))
@@ -154,7 +151,7 @@ class WGANGP(keras.Model):
                     de_log_spec = tf.math.exp(5*(generated_signal-1))
                     de_norm_spec = de_log_spec * max_value
                     generated_audio = tf.reshape(de_norm_spec, (-1, 256, 128))
-                    generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=254, stride=64, window=254, iterations=50)
+                    generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=n_fft, stride=hop_length, window=win_length, iterations=50)
                     generated_audio = generated_audio / tf.reduce_max(tf.abs(generated_audio))
                     generated_audio = generated_audio[:,:audio_dim]
                     print(tf.reduce_max(generated_audio))
