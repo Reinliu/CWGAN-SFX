@@ -1,7 +1,7 @@
 from tensorflow.keras.layers import Lambda, Input, Conv2D, Flatten, Dense, Conv2DTranspose, Reshape, Lambda, LeakyReLU, ReLU, Embedding, Concatenate, BatchNormalization, Dropout, Cropping1D
 from tensorflow.keras.models import Model
 import keras.activations
-import tensorflow_addons as tfa
+#import tensorflow_addons as tfa
 
 #Label embeding using the method in https://machinelearningmastery.com/how-to-develop-a-conditional-generative-adversarial-network-from-scratch/
 audio_dim =16384
@@ -33,9 +33,9 @@ def generator(latent_dim=100, n_classes=5):
     generator = Model([generator_input, label_input], generator_output, name = 'Generator')
     return generator
 
-g_model = generator()
+#g_model = generator()
 #g_model.summary()
-keras.utils.plot_model(g_model, "generator_plot.png", show_shapes=True)
+#keras.utils.plot_model(g_model, "generator_plot.png", show_shapes=True)
 
 
 def discriminator(n_classes=5):
@@ -60,6 +60,6 @@ def discriminator(n_classes=5):
     discriminator = Model([discriminator_input, label_input], discriminator_output, name = 'Discriminator')
     return discriminator
 
-d_model = discriminator()
+#d_model = discriminator()
 #d_model.summary()
-keras.utils.plot_model(d_model, "discriminator_plot.png", show_shapes=True)
+#keras.utils.plot_model(d_model, "discriminator_plot.png", show_shapes=True)
