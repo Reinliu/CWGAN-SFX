@@ -7,7 +7,9 @@ import matplotlib.pyplot as plt
 import tensorflow_io as tfio
 import soundfile as sf
 audio_dim = 16384
-clipBelow = -10
+n_fft = 254
+hop_length = 64
+win_length = 256
 
 #Baseline WGANGP model directly from the Keras documentation: https://keras.io/examples/generative/wgan_gp/
 
@@ -157,9 +159,9 @@ class WGANGP(keras.Model):
                     
                     # Synthesize audio
                     de_log_spec = tf.math.exp(5*(generated_signal-1))
-                    de_norm_spec = de_log_spec * max_value
+                    de_norm_spec = de_log_spec * 69.37411499023438  # The original spectrograms max value extracted from training_parameters 
                     generated_audio = tf.reshape(de_norm_spec, (-1, 256, 128))
-                    generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=254, stride=64, window=254, iterations=50)
+                    generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=254, stride=64, window=256, iterations=50)
                     generated_audio = generated_audio / tf.reduce_max(tf.abs(generated_audio))
                     generated_audio = generated_audio[:,:audio_dim]
                     sf.write(f'{checkpoints_path}/synth_audio/{batch}_batch_synth_class_{i}.wav',
