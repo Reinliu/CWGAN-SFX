@@ -13,7 +13,8 @@ losses = []
 clip_threshold = 1.0
 n_fft = 254
 hop_length = 64
-win_length = 254
+win_length = 256
+audio_dim = 16384
 
 def mean_square_error(y_true, y_pred):
     diff = y_true - y_pred
