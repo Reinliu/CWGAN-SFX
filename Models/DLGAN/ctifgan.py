@@ -4,10 +4,9 @@ import keras.activations
 import tensorflow_addons as tfa
 
 #Label embeding using the method in https://machinelearningmastery.com/how-to-develop-a-conditional-generative-adversarial-network-from-scratch/
-#n_classes = 5
 audio_dim =16384
 
-def generator(latent_dim=100, use_batch_norm=True, n_classes=1):
+def generator(latent_dim=100, n_classes=5):
 
     generator_filters = [512, 256, 128, 64, 1]
 
@@ -26,8 +25,7 @@ def generator(latent_dim=100, use_batch_norm=True, n_classes=1):
 
     for i in range(4):
         x = Conv2DTranspose(filters=generator_filters[i], kernel_size=(12, 3), strides=(2, 2), padding='same', name = 'upsample_conv_{}'.format(i), activation = 'relu')(x)
-        if use_batch_norm == True:
-            x = BatchNormalization()(x)
+        x = BatchNormalization()(x)
 
     x = Conv2DTranspose(filters = 1, kernel_size = (12, 3), strides = (2, 2), padding='same', name = f'generator_Tconv_5', activation='tanh')(x)
 
