@@ -10,3 +10,17 @@ Our Baseline model:
 Our proposed method:
 
 <img width="500" alt="Screenshot 2023-02-08 at 21 12 32" src="https://user-images.githubusercontent.com/50271800/217983020-bdee347c-8651-406b-bfe1-043247afdc61.png">
+
+
+# Requirements:
+
+pip install tensorflow==2.6.0
+pip install keras==2.6.0
+pip install librosa
+
+
+# Training instructions
+To train a baseline model or our proposed method, take a look at 'train_gan.py' file at the end. You need to prepare a folder directory which contains sounds in different classes included in separate folders. Then specify the hyper-parameters as you wish. Then just run 'train_gan.py' to start training. The weights, models, and generated samples are automatically saved during training.
+
+# Generate instructions
+Once you've trained a model, you could take a look at the 'training_parameters.txt' and note 'max_value'. This is the maximum value for the spectrograms extracted from the audio waveforms. You could change the directories of your saved models and the max value inside 'generate.py' and then start generating different amounts of files for each category.
