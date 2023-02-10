@@ -13,11 +13,11 @@ Our proposed method:
 
 
 # Requirements:
-
-pip install tensorflow==2.6.0 \
-pip install keras==2.6.0 \
+'''
+pip install tensorflow==2.6.0 
+pip install keras==2.6.0 
 pip install librosa
-
+'''
 
 # Training instructions
 To train a baseline model or our proposed method, take a look at 'train_gan.py' file at the end. You need to prepare a folder directory which contains sounds in different classes included in separate folders. Then specify the hyper-parameters as you wish. Then just run 'train_gan.py' to start training. The weights, models, and generated samples are automatically saved during training.
