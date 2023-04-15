@@ -17,6 +17,7 @@ Our proposed method:
 pip install tensorflow==2.6.0 
 pip install keras==2.6.0 
 pip install librosa
+pip install tensorflow_io
 ```
 
 # Training instructions
