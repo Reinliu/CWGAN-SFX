@@ -67,7 +67,7 @@ def create_date_folder(checkpoints_path,name):
 
 #save the training arguments used to the checkpoints folder (it make it easier retrieve the hyperparameters afterwards)
 def write_parameters(n_batches, batch_size, audio_path, checkpoints_path, path_to_weights, max_value, resume_training, override_saved_model, synth_frequency, 
-                save_frequency, latent_dim, use_batch_norm, discriminator_learning_rate, generator_learning_rate,
+                save_frequency, latent_dim, discriminator_learning_rate, generator_learning_rate,
                 discriminator_extra_steps, mse_weight):
     print(f'Saving the training parameters to disk in {checkpoints_path}/training_parameters.txt')
     arguments = open(f'{checkpoints_path}/training_parameters.txt', "w")
@@ -82,7 +82,6 @@ def write_parameters(n_batches, batch_size, audio_path, checkpoints_path, path_t
     arguments.write(f'synth_frequency = {synth_frequency}\n')
     arguments.write(f'save_frequency = {save_frequency}\n')
     arguments.write(f'latent_dim = {latent_dim}\n')
-    arguments.write(f'use_batch_norm = {use_batch_norm}\n')
     arguments.write(f'discriminator_learning_rate = {discriminator_learning_rate}\n')
     arguments.write(f'generator_learning_rate = {generator_learning_rate}\n')
     arguments.write(f'discriminator_extra_steps = {discriminator_extra_steps}\n')
