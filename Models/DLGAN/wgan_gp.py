@@ -2,16 +2,12 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import time
-import librosa
 import soundfile as sf
 import tensorflow_io as tfio
 import matplotlib.pyplot as plt
 from ctifgan import *
 import pandas as pd
 losses = []
-n_fft = 254
-hop_length = 64
-win_length = 254
 
 def mean_square_error(y_true, y_pred):
     diff = y_true - y_pred
@@ -76,12 +72,20 @@ class WGANGP(keras.Model):
         gp = tf.reduce_mean((norm - 1.0) ** 2)
         return gp
     
-    def train_batch(self, audio, labels, specs, batch_size, max_value, mse_weight):
+    def train_batch(self, audio, labels, specs, audio_dim, batch_size, max_value, mse_weight):
         #get a random indexes for the batch
         idx = np.random.randint(0, audio.shape[0], batch_size)
         real_images = specs[idx]
         labels = labels[idx]
         real_audios = audio[idx]
+        if audio_dim == 16384*4:
+            n_fft = 510
+            hop_length = 128
+            win_length = 256
+        elif audio_dim == 16384:
+            n_fft = 254
+            hop_length = 64
+            win_length = 254
 
         for i in range(self.d_steps):
             # Get the latent vector
@@ -92,7 +96,10 @@ class WGANGP(keras.Model):
                 generated_images = self.generator([random_latent_vectors, labels], training=True)
                 de_log_spec = tf.math.exp(5*(generated_images-1))
                 de_norm_spec = de_log_spec * max_value
-                generated_audio = tf.reshape(de_norm_spec, (batch_size, 256, 128))
+                if audio_dim ==16384:
+                    generated_audio = tf.reshape(de_norm_spec, (batch_size, 256, 128))
+                elif audio_dim ==16384*4:
+                    generated_audio = tf.reshape(de_norm_spec, (batch_size, 512, 256))
                 generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=n_fft, stride=hop_length, window=win_length, iterations=50)
                 generated_audio = generated_audio / (tf.reduce_max(tf.abs(generated_audio)) + 1e-50)
                 generated_audio = generated_audio[:,:audio_dim]
@@ -130,12 +137,20 @@ class WGANGP(keras.Model):
 
         return d_loss, g_loss
     
-    def train(self, audio, labels, specs, batch_size, max_value, batches, synth_frequency, save_frequency,
+    def train(self, audio, labels, specs, audio_dim, batch_size, max_value, batches, synth_frequency, save_frequency,
               sampling_rate, n_classes, checkpoints_path, override_saved_model, mse_weight):
 
         for batch in range(batches):
+            if audio_dim == 16384*4:
+                n_fft = 510
+                hop_length = 128
+                win_length = 256
+            elif audio_dim == 16384:
+                n_fft = 254
+                hop_length = 64
+                win_length = 254
             start_time = time.time()
-            d_loss, g_loss = self.train_batch(audio, labels, specs, batch_size, max_value, mse_weight)
+            d_loss, g_loss = self.train_batch(audio, labels, specs, audio_dim, batch_size, max_value, mse_weight)
             losses.append([d_loss, g_loss])
             end_time = time.time()
             time_batch = (end_time - start_time)
@@ -150,7 +165,10 @@ class WGANGP(keras.Model):
                     plt.imsave(f'{checkpoints_path}/synth_audio/{batch}_batch_synth_class_{i}.png', tf.squeeze(generated_signal))
                     de_log_spec = tf.math.exp(5*(generated_signal-1))
                     de_norm_spec = de_log_spec * max_value
-                    generated_audio = tf.reshape(de_norm_spec, (-1, 256, 128))
+                    if audio_dim == 16384:
+                        generated_audio = tf.reshape(de_norm_spec, (-1, 256, 128))
+                    elif audio_dim == 16384*4:
+                        generated_audio = tf.reshape(de_norm_spec, (-1, 512, 256))
                     generated_audio = tfio.audio.inverse_spectrogram(generated_audio, nfft=n_fft, stride=hop_length, window=win_length, iterations=50)
                     generated_audio = generated_audio / tf.reduce_max(tf.abs(generated_audio))
                     generated_audio = generated_audio[:,:audio_dim]
